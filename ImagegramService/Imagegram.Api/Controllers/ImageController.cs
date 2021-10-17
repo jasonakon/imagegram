@@ -15,6 +15,9 @@ namespace Imagegram.Api.Controllers
     [ApiController]
     public class ImageController : ControllerBase
     {
+        private readonly List<String> validExtList = new List<string>
+            { "jpg", "bmp", "png" };
+
         private readonly IHttpHelper _httpHelper;
         
         private readonly ImagegramContext _context;
@@ -38,7 +41,15 @@ namespace Imagegram.Api.Controllers
             {
                 // Retrieve file & upload to S3:
                 string fileName = file.FileName;
+                string fileExtension = fileName.Substring(fileName.Length - 3);
                 string bucketName = "imagegram-raw";
+
+                if (!validExtList.Contains(fileExtension)){
+                    return BadRequest(new
+                    {
+                        message = "Invalid image file extension"
+                    });
+                }
 
                 using FileStream fileStream = System.IO.File.Create(fileName);
                 file.CopyTo(fileStream);
@@ -52,7 +63,7 @@ namespace Imagegram.Api.Controllers
                 var requestParam = new Dictionary<string, string>
                 {
                     ["key"] = fileName,
-                    ["extension"] = fileName.Substring(fileName.Length - 3)
+                    ["extension"] = fileExtension
                 };
                 var response = await _httpHelper.SendHttpRequest(url, requestParam);
 

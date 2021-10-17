@@ -24,11 +24,15 @@ namespace Imagegram.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get(int? limit, int nextCursor)
+        public IActionResult Get(int? limit, int? nextCursor)
         {
+            var returnCursor = 0;
+            var _nextCursor = (nextCursor != null) ? nextCursor.Value : 0;
+            var _limit = (limit != null) ? limit.Value : 0;
+
             _context.ChangeTracker.LazyLoadingEnabled = false;
             var imageCtx = _context.Images;
-            var imageList = imageCtx.Include(image => image.Comments).OrderByDescending(x => x.NumComments).Skip(nextCursor).TakeIfNotNull(limit).Select(c => new
+            var imageList = imageCtx.Include(image => image.Comments).OrderByDescending(x => x.NumComments).Skip(_nextCursor).TakeIfNotNull(limit).Select(c => new
             {
                 image_id = c.ImageId,
                 image_url = c.Url,
@@ -36,7 +40,16 @@ namespace Imagegram.Api.Controllers
                 comments = c.Comments.TakeLast(2).Select(c => c.Content)
             });
 
-            return Ok(imageList);
+            if (limit != null)
+            {
+                returnCursor = _nextCursor + _limit;
+            }
+
+            return Ok(new
+            {
+                nextCursor = returnCursor,
+                posts = imageList
+            });
         }
     }
 }
