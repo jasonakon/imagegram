@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\work_storage\career\bandlabs\imagegram_final_git\ImagegramService\Imagegram.Api\bin\Release\net5.0\publish\</_PublishTargetUrl>
+    <History>True|2021-10-17T05:55:45.1395047Z;True|2021-10-17T13:55:29.9989938+08:00;True|2021-10-16T15:25:05.8069288+08:00;True|2021-10-16T14:59:03.2547636+08:00;True|2021-10-16T14:54:54.5355867+08:00;True|2021-10-16T14:54:15.0523025+08:00;</History>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "aws-xray-sdk": "^3.3.3",
+    "jimp": "^0.16.1"
+  }
+}
