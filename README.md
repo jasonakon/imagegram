@@ -36,3 +36,34 @@ This approach uses fully serverless application mainly lambda functions and apig
 2. Api gateway trigger lambda perform upload and then once the upload is completed, s3 will trigger lambda to do file format conversion and update RDBMS
 3. We can introduce message queue to keep track on the progress, if there's any failure in between we can either retry with dead letter queue or send a notification back to user saying your image is incompatible.
 4. Due to the nature of its asynchronous approach, user cannot know whether their files are not corrupted or any issue in the middle of the process unless we establish a notification adapter over client side.
+
+### My Approach (Mixture best of both world)
+<img src="photo/approach_3.JPG" alt="OD_1" width="500"/>
+This approach is a combination of both containerize services and lambda functions.
+
+#### Synchronous approach:
+1. User upload their image through REST protocol using multi-part upload to our containerized services (resolve large file timeout)
+2. Once uploaded, containerized services trigger lambda using API-gateway to perform image format conversion (offload to lambda and better network connectivity within the same cloud env)
+3. Lambda will response back to service client either fail or pass and perform database update together with sending back responses to client in real time.
+
+## How to run ?
+1. Checkout the repository and build the .Net 5 application using visual studio
+2. Do remember to append your AWS credential in App.config file in the root directory of the workspace
+3. Your service should be started immediately.
+
+## API
+Local host examples:
+1. Image Upload: (POST)
+```
+http://localhost:8080/image/upload?file
+```
+2. Add Comment: (POST)
+   - Request body: {image_id,comment}
+```
+http://localhost:8080/comment
+```
+3. Get all Posts : (GET)
+   - (Optional) Cursor Pagination - Param (limit,nextCursor)
+```
+http://localhost:8080/post
+```
