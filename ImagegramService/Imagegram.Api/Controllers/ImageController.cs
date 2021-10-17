@@ -44,7 +44,7 @@ namespace Imagegram.Api.Controllers
                 string fileExtension = fileName.Substring(fileName.Length - 3);
                 string bucketName = "imagegram-raw";
 
-                if (!validExtList.Contains(fileExtension)){
+                if (!validExtList.Contains(fileExtension.ToLower())){
                     return BadRequest(new
                     {
                         message = "Invalid image file extension"
