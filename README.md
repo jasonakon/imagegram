@@ -14,6 +14,7 @@ This repository is a RESTful API inspired by a system that allows you to upload 
 <img src="photo/approach_1.JPG" alt="OD_1" width="500"/>
 This approach is the most common microservice design to consume and handle high traffic environment.
 
+#### Synchronous approach:
 1. Perform horizontal scaling by increasing and decreasing number of instances based on traffic
 2. Good in handling large file transfer through multi-part upload
 3. The image upload is synchronous where users can know the status of their upload in real time.
@@ -23,4 +24,15 @@ This approach is the most common microservice design to consume and handle high 
 <img src="photo/approach_2.JPG" alt="OD_1" width="500"/>
 This approach uses fully serverless application mainly lambda functions and apigateway
 
-1.
+#### Synchronous approach:
+1. The lambda functions will be upscaling by spinning new instances based on the load demand.
+2. Almost no supervision is required for the upscaling
+3. Lambda is triggered by incoming http request from the api-gateway then perform the file upload
+   - There will be issue if the file is too large and the user network connection is slow and easily causes timeout all the time
+4. Once finished uploaded the lambda will trigger another lambda to perform image format conversion and update the RBMS record once completed
+
+#### ASynchronous approach:
+1. This is actually my first thought of the design. However there are still a few challenges.
+2. Api gateway trigger lambda perform upload and then once the upload is completed, s3 will trigger lambda to do file format conversion and update RDBMS
+3. We can introduce message queue to keep track on the progress, if there's any failure in between we can either retry with dead letter queue or send a notification back to user saying your image is incompatible.
+4. Due to the nature of its asynchronous approach, user cannot know whether their files are not corrupted or any issue in the middle of the process unless we establish a notification adapter over client side.
