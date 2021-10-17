@@ -42,7 +42,7 @@ This approach uses fully serverless application mainly lambda functions and apig
 This approach is a combination of both containerize services and lambda functions.
 
 #### Synchronous approach:
-1. User upload their image through http protocol using multi-part upload to our containerized services (resolve large file timeout)
+1. User upload their image through REST protocol using multi-part upload to our containerized services (resolve large file timeout)
 2. Once uploaded, containerized services trigger lambda using API-gateway to perform image format conversion (offload to lambda and better network connectivity within the same cloud env)
 3. Lambda will response back to service client either fail or pass and perform database update together with sending back responses to client in real time.
 
@@ -52,4 +52,18 @@ This approach is a combination of both containerize services and lambda function
 3. Your service should be started immediately.
 
 ## API
-
+Local host examples:
+1. Image Upload: (POST)
+```
+http://localhost:8080/image/upload?file
+```
+2. Add Comment: (POST)
+   - Request body: {image_id,comment}
+```
+http://localhost:8080/comment
+```
+3. Get all Posts : (GET)
+   - (Optional) Cursor Pagination - Param (limit,nextCursor)
+```
+http://localhost:8080/post
+```
