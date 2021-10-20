@@ -64,13 +64,25 @@ This approach uses fully serverless application and be used for both sync and as
 
 #### 3. Event Sourcing Approach:
 <img src="photo/cqrs.JPG" alt="OD_1" width="700"/>
+This approach implemented fully with the CQRS and event driven design mainly using event sourcing technique such as message queues and brokers.
+
+1. We can observe that the services are fully isolated as in its individual micrservices.
+2. Databases are splitted and all transactions are performed seperatedly by event.
+3. Each services can be a subscriber / publisher.
+4. Possible problems:
+    - Data consistency may not applicable to ACID compliant
+    - Duplicated and missing messages
+
+#### 4. IDEAL Approach (Mixture best of both world) - Async
+<img src="photo/mix_approach_1.JPG" alt="OD_1" width="700"/>
+This approach is a combination of both containerized services and lambda functions. I personally felt this should be the best design afterall of a scalable and robust system.
+
+Components:
+1. Containerized app services
+2. Message queues / brokers / Dead-letter queues
+3. Redis & RDBMS
 
 #### 4. Redis & RDBMS or NoSQL ?
-
-
-### 4. IDEAL Approach (Mixture best of both world)
-<img src="photo/approach_3.JPG" alt="OD_1" width="700"/>
-This approach is a combination of both containerize services and lambda functions.
 
 #### Synchronous approach:
 1. User upload their image through REST protocol using multi-part upload to our containerized services (resolve large file timeout)
