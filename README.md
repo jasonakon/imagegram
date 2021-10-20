@@ -62,6 +62,10 @@ This approach uses fully serverless application and be used for both sync and as
    - Usually database has its preset on the number of concurrent connection pool. This will be a problem if there is a high number of concurrent connection coming from the lambdas and the database will become exhausted as more connection requests are formed.
    - Lambda has short lifetime of 15mins and only accept small payload size. Its not recommended to handle certain blocking processing that is taking too long and will eventually causes a timeout such as the huge file upload for user with slow internet connectivity.
 
+### MESSAGE QUEUES / BROKERS:
+<img src="photo/queue.png" alt="OD_1" width="400"/>
+This illustrate a simple message queue with 2 different channels or topics having both publisher and consumer at the end. This will be the key element of the backbone of the event driven architecture.
+
 #### 3. Event Sourcing Approach:
 <img src="photo/cqrs.JPG" alt="OD_1" width="700"/>
 This approach implemented fully with the CQRS and event driven design mainly using event sourcing technique such as message queues and brokers.
@@ -70,7 +74,7 @@ This approach implemented fully with the CQRS and event driven design mainly usi
 2. Databases are splitted and all transactions are performed seperatedly by event.
 3. Each services can be a subscriber / publisher.
 4. Possible problems:
-    - Data consistency may not applicable to ACID compliant
+    - Data consistency may not applicable to ACID compliant (Eventual consistency)
     - Duplicated and missing messages
 
 #### 4. IDEAL Approach (Mixture best of both world) - Async
@@ -82,7 +86,12 @@ Components:
 2. Message queues / brokers / Dead-letter queues
 3. Redis & RDBMS
 
-#### 4. Redis & RDBMS or NoSQL ?
+The design is similar to the event driven approach. However, instead of seperating the database, we'll still prefer to stick with one centralised database. This approach may not be good for high frequency writes but there's a way to handle it using redis.
+
+<img src="photo/redis.JPG" alt="OD_1" width="300"/>
+Redis is a key-value database where it perform on top of high speed volative memory like RAM. 
+1. It able to perform very fast write and read, however it has its limitation in its persistence storage. So, we'll be using it as a layer of queue when handling high load of adding comment requests then we make a period insert into our sql database. 
+2. Although we may have a slight delay in the insertion, but its still minimal as compared with direct insertion of any direct api request.  
 
 #### Synchronous approach:
 1. User upload their image through REST protocol using multi-part upload to our containerized services (resolve large file timeout)
@@ -100,6 +109,7 @@ Local host examples:
 ```
 http://localhost:8080/image/upload?file
 ```
+
 2. Add Comment: (POST)
    - Request body: {image_id,comment}
 ```
@@ -107,6 +117,9 @@ http://localhost:8080/comment
 ```
 3. Get all Posts : (GET)
    - (Optional) Cursor Pagination - Param (limit,nextCursor)
-```
-http://localhost:8080/post
-```
+
+| Endpoint             | Description                              |
+| -------------------- | ---------------------------------------- |
+| `/api/posts`         | Initial request. Return first 10 posts.  |
+| `/api/posts/?page=2` | Second page, returning 10 posts using an offset of 10. |
+| `/api/posts/?page=3` | Third page, returning 10 posts using an offset of 20. |
