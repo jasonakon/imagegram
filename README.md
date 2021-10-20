@@ -89,7 +89,9 @@ Components:
 The design is similar to the event driven approach. However, instead of seperating the database, we'll still prefer to stick with one centralised database. This approach may not be good for high frequency writes but there's a way to handle it using redis.
 
 <img src="photo/redis.JPG" alt="OD_1" width="300"/>
-Redis is a key-value database where it perform on top of high speed volative memory like RAM. 
+
+**Redis is a key-value database where it perform on top of high speed volative memory like RAM.**
+
 1. It able to perform very fast write and read, however it has its limitation in its persistence storage. So, we'll be using it as a layer of queue when handling high load of adding comment requests then we make a period insert into our sql database. 
 2. Although we may have a slight delay in the insertion, but its still minimal as compared with direct insertion of any direct api request.  
 
