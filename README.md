@@ -12,6 +12,8 @@ This repository is a RESTful API inspired by a system that allows you to upload 
 ## System design perspective
 ### User Behaviour:
 #### 1. Synchronous Approach:
+<img src="photo/sync.JPG" alt="OD_1" width="700"/>
+
 1. User submit the photo upload to our API.
 2. API received upload request and push image to S3-raw.
 3. Once push completed, API make a request to spin off a lambda function to perform image format conversion.
@@ -25,6 +27,8 @@ User -> API (upload) -> Lambda (formatting) -> API (update) -> User
 This approach allowed user to have immediate feedback on their photo upload to the server. However, user may feel impatient if their internet connectivity is slow because they have to wait util the whole process to be completed.
 
 #### 2. Asynchronous Approach:
+<img src="photo/async.JPG" alt="OD_1" width="700"/>
+
 1. User submit the photo upload to our API.
 2. Upon submission, the user will directly received a non-blocking response of the upload. User may continue to browse or do other stuff with the client app.
 3. API received request then push image to S3-raw.
@@ -40,16 +44,16 @@ User -> API (upload) (decoupled)-> Lambda (formatting) -> API (update) -> User
 This approach may have different user experience as in user cannot perform cancellation in the middle of the process. However, this is able to resolve problems that poor internet connection users are facing. Beside, this design enable our backend system process to be decoupled and offload to more different resources for faster processing.
 
 ### Application & Infrastructure
-#### 1. Containerized App only approach:
-<img src="photo/approach_1.JPG" alt="OD_1" width="500"/>
+#### 1. Horizontal Scaling Approach:
+<img src="photo/approach_1.JPG" alt="OD_1" width="700"/>
 This approach can be used for both sync and async behaviour.
 
 1. The backbone of this design is based on a horizontal scaling of monolith application behind a load balancer.
 2. The applicaton is still monolith because all the APIs are packed in a same service and having concurrent transaction with the same database.
 3. This apporach is the most conventional approach for most enterprises because it fulfilled the ACID compliants where data consistency among services and database are persisted.
 
-#### 2. Serverless
-<img src="photo/approach_2.JPG" alt="OD_1" width="500"/>
+#### 2. Serverless Approach:
+<img src="photo/approach_2.JPG" alt="OD_1" width="700"/>
 This approach uses fully serverless application and be used for both sync and async as well.
 
 1. This approach is much more easier and straightforward when comes in handling inconsistency traffic load. This is because Lambda function itself is a stateless isolated instance that perform small task very fast and efficient without intensive supervision.
@@ -58,8 +62,11 @@ This approach uses fully serverless application and be used for both sync and as
    - Usually database has its preset on the number of concurrent connection pool. This will be a problem if there is a high number of concurrent connection coming from the lambdas and the database will become exhausted as more connection requests are formed.
    - Lambda has short lifetime of 15mins and only accept small payload size. Its not recommended to handle certain blocking processing that is taking too long and will eventually causes a timeout such as the huge file upload for user with slow internet connectivity.
 
+#### 3. Event Sourcing Approach:
+
+
 ### My Approach (Mixture best of both world)
-<img src="photo/approach_3.JPG" alt="OD_1" width="500"/>
+<img src="photo/approach_3.JPG" alt="OD_1" width="700"/>
 This approach is a combination of both containerize services and lambda functions.
 
 #### Synchronous approach:
