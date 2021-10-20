@@ -63,9 +63,12 @@ This approach uses fully serverless application and be used for both sync and as
    - Lambda has short lifetime of 15mins and only accept small payload size. Its not recommended to handle certain blocking processing that is taking too long and will eventually causes a timeout such as the huge file upload for user with slow internet connectivity.
 
 #### 3. Event Sourcing Approach:
+<img src="photo/cqrs.JPG" alt="OD_1" width="700"/>
+
+#### 4. Redis & RDBMS or NoSQL ?
 
 
-### My Approach (Mixture best of both world)
+### 4. IDEAL Approach (Mixture best of both world)
 <img src="photo/approach_3.JPG" alt="OD_1" width="700"/>
 This approach is a combination of both containerize services and lambda functions.
 
