@@ -109,7 +109,7 @@ Local host examples:
 ```
 http://localhost:8080/image/upload?file
 ```
-| Attribute             | Description                              |
+| Param             | Description                              |
 | -------------------- | ---------------------------------------- |
 | `file`         | The file to upload  |
 
