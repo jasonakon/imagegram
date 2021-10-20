@@ -109,17 +109,25 @@ Local host examples:
 ```
 http://localhost:8080/image/upload?file
 ```
+| Attribute             | Description                              |
+| -------------------- | ---------------------------------------- |
+| `file`         | The file to upload  |
 
 2. Add Comment: (POST)
    - Request body: {image_id,comment}
 ```
 http://localhost:8080/comment
 ```
+| Attribute             | Description                              |
+| -------------------- | ---------------------------------------- |
+| `image_id`         | The id of the image  |
+| `comment` | The content of the comment |
+
 3. Get all Posts : (GET)
    - (Optional) Cursor Pagination - Param (limit,nextCursor)
 
 | Endpoint             | Description                              |
 | -------------------- | ---------------------------------------- |
-| `/api/posts`         | Initial request. Return first 10 posts.  |
-| `/api/posts/?page=2` | Second page, returning 10 posts using an offset of 10. |
-| `/api/posts/?page=3` | Third page, returning 10 posts using an offset of 20. |
+| `http://localhost:8080/post`         | Initial request. Return all the posts  |
+| `http://localhost:8080/post/?limit=5&nextCursor=10` | Return only 5 posts starting from the 10th |
+| `http://localhost:8080/post/?limit=5` | Return only 5 posts starting from the beginning |
