@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Imagegram.Api.Models;
-using Imagegram.Api.JSON;
 using System;
 using System.Linq;
 
@@ -23,7 +22,7 @@ namespace Imagegram.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(Request request)
+        public IActionResult AddComment(Request request)
         {
             try
             {

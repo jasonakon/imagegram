@@ -19,17 +19,21 @@ namespace Imagegram.Api.Controllers
             { "jpg", "bmp", "png" };
 
         private readonly IHttpHelper _httpHelper;
+
+        private readonly IS3Helper _s3Helper;
         
         private readonly ImagegramContext _context;
         
         private readonly ILogger<ImageController> _logger;
-        public ImageController(IHttpHelper httpHelper, ImagegramContext context, ILogger<ImageController> logger)
+        public ImageController(IS3Helper s3Helper, IHttpHelper httpHelper, ImagegramContext context, ILogger<ImageController> logger)
         {
             _httpHelper = httpHelper;
 
             _context = context;
 
             _logger = logger;
+
+            _s3Helper = s3Helper;
         }
 
         [HttpPost("upload")]
@@ -54,7 +58,7 @@ namespace Imagegram.Api.Controllers
                 using FileStream fileStream = System.IO.File.Create(fileName);
                 file.CopyTo(fileStream);
                 fileStream.Flush();
-                await S3.UploadFileAsync(fileStream, bucketName, fileName);
+                await _s3Helper.UploadFileAsync(fileStream, bucketName, fileName);
                 string result = $"File uploaded successfully. File length  : {file.Length} bytes";
                 _logger.LogInformation(result);
 
@@ -96,11 +100,11 @@ namespace Imagegram.Api.Controllers
                     });
                 }
             }
-            catch (Exception e)
+            catch (IOException e)
             {
                 return BadRequest(new
                 {
-                    message = "File upload failed with error - " + e.Message
+                    message = "File upload failed with error - Issue with reading in input file - " + e.Message
                 });
             }
         }

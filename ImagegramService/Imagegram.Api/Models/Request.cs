@@ -1,13 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Imagegram.Api.JSON
+namespace Imagegram.Api.Models
 {
     public class Request
     {
+        public Request(int imageId, string comment)
+        {
+            ImageId = imageId;
+            Comment = comment;
+        }
+
         [JsonProperty(PropertyName = "image_id")]
         public int ImageId { get; set; }
         [JsonProperty(PropertyName = "comment")]

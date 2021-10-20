@@ -21,6 +21,7 @@ namespace Imagegram.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IHttpHelper, HttpHelper>();
+            services.AddSingleton<IS3Helper, S3Helper>();
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
