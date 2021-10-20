@@ -10,32 +10,53 @@ This repository is a RESTful API inspired by a system that allows you to upload 
 2. Image file conversion
 3. Low latency query
 ## System design perspective
-### Containerized App only
+### User Behaviour:
+#### 1. Synchronous Approach:
+1. User submit the photo upload to our API.
+2. API received upload request and push image to S3-raw.
+3. Once push completed, API make a request to spin off a lambda function to perform image format conversion.
+4. Once conversion completed, lambda function feedback with response to API and update the database with new record.
+5. Upon successful update, API respond back to user saying your image has been successfully uploaded
+
+**Simplified flow:**
+<br>
+User -> API (upload) -> Lambda (formatting) -> API (update) -> User
+
+This approach allowed user to have immediate feedback on their photo upload to the server. However, user may feel impatient if their internet connectivity is slow because they have to wait util the whole process to be completed.
+
+#### 2. Asynchronous Approach:
+1. User submit the photo upload to our API.
+2. Upon submission, the user will directly received a non-blocking response of the upload. User may continue to browse or do other stuff with the client app.
+3. API received request then push image to S3-raw.
+4. S3-raw will trigger a lambda to perform file conversion.
+5. Upon successful of file conversion, lambda send sqs msg to a msg queue that subcribed by our API service
+6. API service notified by polling the subscribed msg queue and send notification back to the user.
+7. User notified with a notification saying your image has been succesfully uploaded.
+
+**Simplified flow:**
+<br>
+User -> API (upload) (decoupled)-> Lambda (formatting) -> API (update) -> User
+
+This approach may have different user experience as in user cannot perform cancellation in the middle of the process. However, this is able to resolve problems that poor internet connection users are facing. Beside, this design enable our backend system process to be decoupled and offload to more different resources for faster processing.
+
+### Application & Infrastructure
+#### 1. Containerized App only approach:
 <img src="photo/approach_1.JPG" alt="OD_1" width="500"/>
-This approach is the most common microservice design to consume and handle high traffic environment.
+This approach can be used for both sync and async behaviour.
 
-#### Synchronous approach:
-1. Perform horizontal scaling by increasing and decreasing number of instances based on traffic
-2. Good in handling large file transfer through multi-part upload
-3. The image upload is synchronous where users can know the status of their upload in real time.
-4. However, this system is good if there's a consistency of high traffic all the time
+1. The backbone of this design is based on a horizontal scaling of monolith application behind a load balancer.
+2. The applicaton is still monolith because all the APIs are packed in a same service and having concurrent transaction with the same database.
+3. This apporach is the most conventional approach for most enterprises because it fulfilled the ACID compliants where data consistency among services and database are persisted.
 
-### Serverless (async / sync)
+#### 2. Serverless
 <img src="photo/approach_2.JPG" alt="OD_1" width="500"/>
-This approach uses fully serverless application mainly lambda functions and apigateway
+This approach uses fully serverless application and be used for both sync and async as well.
 
-#### Synchronous approach:
-1. The lambda functions will be upscaling by spinning new instances based on the load demand.
-2. Almost no supervision is required for the upscaling
-3. Lambda is triggered by incoming http request from the api-gateway then perform the file upload
-   - There will be issue if the file is too large and the user network connection is slow and easily causes timeout all the time
-4. Once finished uploaded the lambda will trigger another lambda to perform image format conversion and update the RBMS record once completed
-
-#### ASynchronous approach:
-1. This is actually my first thought of the design. However there are still a few challenges.
-2. Api gateway trigger lambda perform upload and then once the upload is completed, s3 will trigger lambda to do file format conversion and update RDBMS
-3. We can introduce message queue to keep track on the progress, if there's any failure in between we can either retry with dead letter queue or send a notification back to user saying your image is incompatible.
-4. Due to the nature of its asynchronous approach, user cannot know whether their files are not corrupted or any issue in the middle of the process unless we establish a notification adapter over client side.
+1. This approach is much more easier and straightforward when comes in handling inconsistency traffic load. This is because Lambda function itself is a stateless isolated instance that perform small task very fast and efficient without intensive supervision.
+2. The API Gateway can be seen as a trigger for respective lambda functions and also act as a load balancer for the http request as well.
+3. However, there are limitations and trade-offs with this approach:
+   - Usually database has its preset on the number of concurrent connection pool. This will be a problem if there is a high number of concurrent connection coming from the lambdas and the database will become exhausted as more connection requests are formed.
+   - Lambda has short lifetime of 15mins and only accept small payload size. Its not recommended to handle certain blocking processing that is taking too long and will eventually causes a timeout such as the huge file upload for user with slow internet connectivity.
 
 ### My Approach (Mixture best of both world)
 <img src="photo/approach_3.JPG" alt="OD_1" width="500"/>
