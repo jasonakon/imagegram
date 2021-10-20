@@ -30,6 +30,7 @@ exports.handler = async (event, context) => {
   var tempFile = fs.createWriteStream(keyPath);
 
   try {
+    // Download image from s3-raw:
     const data = (await s3.getObject(params).promise()).Body;
     console.log("File downloaded successfully");
     fs.writeFileSync(keyPath, data);
@@ -38,6 +39,7 @@ exports.handler = async (event, context) => {
     var fileSizeInBytes = stats.size;
     console.log("Written file size - " + fileSizeInBytes + "KB at " + keyPath);
 
+    // Perform image conversion:
     let img = await Jimp.read(keyPath);
     console.log(extension);
     if (extension != "jpg") {
@@ -60,6 +62,7 @@ exports.handler = async (event, context) => {
       Body: keyContent,
     };
 
+    // Upon successful conversion, perform put operation to final S3:
     await s3.putObject(destParams).promise();
     let objectUrl = getUrlFromBucket(destBucket, key);
 
